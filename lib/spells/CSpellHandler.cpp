@@ -136,7 +136,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 	return levels.at(level);
 }
 
-ui32 CSpell::calculateDamage(const spells::Caster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
+int64_t CSpell::calculateDamage(const spells::Caster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
 {
 	//check if spell really does damage - if not, return 0
 	if(!isDamageSpell())
@@ -385,9 +385,9 @@ bool CSpell::canBeCastAt(const CBattleInfoCallback * cb,  spells::Mode mode, con
 	}
 }
 
-int CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Unit * affectedCreature, int rawDamage) const
+int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Unit * affectedCreature, int64_t rawDamage) const
 {
-	int ret = rawDamage;
+	auto ret = rawDamage;
 	//affected creature-specific part
 	if(nullptr != affectedCreature)
 	{
@@ -423,7 +423,7 @@ int CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Unit * 
 	return ret;
 }
 
-int CSpell::calculateRawEffectValue(int effectLevel, int basePowerMultiplier, int levelPowerMultiplier) const
+int64_t CSpell::calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const
 {
 	return basePowerMultiplier * power + levelPowerMultiplier * getPower(effectLevel);
 }

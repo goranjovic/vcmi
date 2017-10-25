@@ -275,7 +275,7 @@ public:
 
 	bool hasSpecialEffects() const;
 	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
-	ui32 calculateDamage(const spells::Caster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
+	int64_t calculateDamage(const spells::Caster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
 	///selects from allStacks actually affected stacks
 	std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster, int spellLvl, BattleHex destination) const;
@@ -385,10 +385,10 @@ public:
 
 public://internal, for use only by Mechanics classes
 	///applies caster`s secondary skills and affectedCreature`s to raw damage
-	int adjustRawDamage(const spells::Caster * caster, const battle::Unit * affectedCreature, int rawDamage) const;
+	int64_t adjustRawDamage(const spells::Caster * caster, const battle::Unit * affectedCreature, int64_t rawDamage) const;
 
 	///returns raw damage or healed HP
-	int calculateRawEffectValue(int effectLevel, int basePowerMultiplier, int levelPowerMultiplier) const;
+	int64_t calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const;
 
 	std::unique_ptr<spells::Mechanics> battleMechanics(const spells::IBattleCast * event) const;
 private:

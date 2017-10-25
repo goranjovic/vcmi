@@ -1442,7 +1442,7 @@ struct BattleStackAttacked
 
 	ui32 stackAttacked, attackerID;
 	ui32 killedAmount;
-	si32 damageAmount;
+	int64_t damageAmount;
 	CStackStateInfo newState;
 	enum EFlags {KILLED = 1, EFFECT = 2/*deprecated */, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16, SPELL_EFFECT = 32 /*, BONUS_EFFECT = 64 */};
 	ui32 flags; //uses EFlags (above)

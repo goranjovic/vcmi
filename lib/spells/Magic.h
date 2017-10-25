@@ -91,10 +91,10 @@ public:
 	virtual int getEffectLevel(const Mode mode, const CSpell * spell) const = 0;
 
 	///applying sorcery secondary skill etc
-	virtual ui32 getSpellBonus(const CSpell * spell, ui32 base, const battle::Unit * affectedStack) const = 0;
+	virtual int64_t getSpellBonus(const CSpell * spell, int64_t base, const battle::Unit * affectedStack) const = 0;
 
 	///only bonus for particular spell
-	virtual ui32 getSpecificSpellBonus(const CSpell * spell, ui32 base) const = 0;
+	virtual int64_t getSpecificSpellBonus(const CSpell * spell, int64_t base) const = 0;
 
 	///default spell-power for damage/heal calculation
 	virtual int getEffectPower(const Mode mode, const CSpell * spell) const = 0;

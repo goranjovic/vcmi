@@ -128,8 +128,8 @@ public:
 	void init();
 	void reset();
 
-	void damage(int32_t & amount);
-	void heal(int32_t & amount, EHealLevel level, EHealPower power);
+	void damage(int64_t & amount);
+	void heal(int64_t & amount, EHealLevel level, EHealPower power);
 
 	int32_t getCount() const;
 	int32_t getFirstHPleft() const;
@@ -276,8 +276,8 @@ public:
 
 	int battleQueuePhase(int turn) const override;
 
-	void damage(int32_t & amount);
-	void heal(int32_t & amount, EHealLevel level, EHealPower power);
+	void damage(int64_t & amount);
+	void heal(int64_t & amount, EHealLevel level, EHealPower power);
 
 	void localInit();
 	void serializeJson(JsonSerializeFormat & handler);
@@ -361,8 +361,8 @@ public:
 	///default spell school level for effect calculation
 	int getEffectLevel(const spells::Mode mode, const CSpell * spell) const override;
 
-	ui32 getSpellBonus(const CSpell * spell, ui32 base, const battle::Unit * affectedStack) const override;
-	ui32 getSpecificSpellBonus(const CSpell * spell, ui32 base) const override;
+	int64_t getSpellBonus(const CSpell * spell, int64_t base, const battle::Unit * affectedStack) const override;
+	int64_t getSpecificSpellBonus(const CSpell * spell, int64_t base) const override;
 
 	///default spell-power for damage/heal calculation
 	int getEffectPower(const spells::Mode mode, const CSpell * spell) const override;

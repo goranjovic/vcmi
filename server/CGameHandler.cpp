@@ -103,7 +103,7 @@ public:
 		return obs->spellLevel;
 	}
 
-	ui32 getSpellBonus(const CSpell * spell, ui32 base, const battle::Unit * affectedStack) const override
+	int64_t getSpellBonus(const CSpell * spell, int64_t base, const battle::Unit * affectedStack) const override
 	{
 		if(hero)
 			return hero->getSpellBonus(spell, base, affectedStack);
@@ -111,7 +111,7 @@ public:
 			return base;
 	}
 
-	ui32 getSpecificSpellBonus(const CSpell * spell, ui32 base) const override
+	int64_t getSpecificSpellBonus(const CSpell * spell, int64_t base) const override
 	{
 		if(hero)
 			return hero->getSpecificSpellBonus(spell, base);
@@ -1040,7 +1040,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	bsa.damageAmount = gs->curB->calculateDmg(att, def, bat.shot(), distance, bat.lucky(), bat.unlucky(), bat.deathBlow(), bat.ballistaDoubleDmg(), getRandomGenerator());
 	def->prepareAttacked(bsa, getRandomGenerator()); //calculate casualties
 
-	auto addLifeDrain = [&](int32_t & toHeal, EHealLevel level, EHealPower power)
+	auto addLifeDrain = [&](int64_t & toHeal, EHealLevel level, EHealPower power)
 	{
 		BattleStacksChanged pack;
 
@@ -1072,7 +1072,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	//life drain handling
 	if(att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
 	{
-		int32_t toHeal = bsa.damageAmount * att->valOfBonuses(Bonus::LIFE_DRAIN) / 100;
+		int64_t toHeal = bsa.damageAmount * att->valOfBonuses(Bonus::LIFE_DRAIN) / 100;
 
 		if(toHeal > 0)
 			addLifeDrain(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
@@ -1087,7 +1087,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		{
 			if(att->hasBonusOfType(Bonus::SOUL_STEAL, subtype))
 			{
-				int32_t toHeal = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL, subtype) * att->MaxHealth();
+				int64_t toHeal = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL, subtype) * att->MaxHealth();
 				addLifeDrain(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
 				break;
 			}
@@ -4299,7 +4299,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 			else
 			{
-				int32_t toHeal = healer->getCount() * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
+				int64_t toHeal = healer->getCount() * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
 
 				//TODO: allow resurrection for mods
 				CStackState state = destStack->asquire();

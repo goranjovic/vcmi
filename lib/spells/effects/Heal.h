@@ -28,6 +28,7 @@ public:
 	void apply(IBattleState * battleState, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
+
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;
 	void serializeJsonEffect(JsonSerializeFormat & handler) override final;
 

@@ -42,12 +42,57 @@ Heal::~Heal() = default;
 
 void Heal::apply(const PacketSender * server, RNG & rng, const Mechanics * m, const EffectTarget & target) const
 {
+	auto hpGained = m->getEffectValue();
+	BattleStacksChanged pack;
 
+	for(auto & oneTarget : target)
+	{
+		const battle::Unit * unit = oneTarget.unitValue;
+
+		if(unit)
+		{
+			auto unitHPgained = m->caster->getSpellBonus(m->owner, hpGained, unit);
+
+			CStackState state = unit->asquire();
+			state.heal(unitHPgained, healLevel, healPower);
+
+			CStackStateInfo info;
+			state.toInfo(info);
+
+			info.stackId = unit->unitId();
+			info.healthDelta = unitHPgained;
+			if(unitHPgained > 0)
+				pack.changedStacks.push_back(info);
+		}
+	}
+	if(!pack.changedStacks.empty())
+		server->sendAndApply(&pack);
 }
 
 void Heal::apply(IBattleState * battleState, const Mechanics * m, const EffectTarget & target) const
 {
+	auto hpGained = m->getEffectValue();
 
+	for(auto & oneTarget : target)
+	{
+		const battle::Unit * unit = oneTarget.unitValue;
+
+		if(unit)
+		{
+			auto unitHPgained = m->caster->getSpellBonus(m->owner, hpGained, unit);
+
+			CStackState state = unit->asquire();
+			state.heal(unitHPgained, healLevel, healPower);
+
+			CStackStateInfo info;
+			state.toInfo(info);
+
+			info.stackId = unit->unitId();
+			info.healthDelta = unitHPgained;
+			if(unitHPgained > 0)
+				battleState->updateUnit(info);
+		}
+	}
 }
 
 bool Heal::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
@@ -58,20 +103,28 @@ bool Heal::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 	if(!validInGenaral)
 		return false;
 
-	//TODO: Heal::isValidTarget
+	auto hpGained = m->getEffectValue();
+	auto insuries = unit->getTotalHealth() - unit->getAvailableHealth();
 
-	if(unit->alive())
+	if(insuries == 0)
+		return false;
+
+	if(hpGained < minFullUnits * unit->unitMaxHealth())
+		return false;
+
+	if(unit->isDead())
 	{
-		//check if unit have HP to heal
+		//check if alive unit blocks resurrection
+		for(const BattleHex & hex : CStack::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+		{
+			auto blocking = m->cb->battleGetUnitsIf([hex, unit](const  battle::Unit * s)
+			{
+				return s->isValidTarget(true) && s->coversPos(hex) && s != unit;
+			});
 
-		auto insuries = unit->getTotalHealth() - unit->getAvailableHealth();
-
-		if(insuries < (minFullUnits == 0 ? 1 : minFullUnits * unit->unitMaxHealth()))
-			return false;
-	}
-	else
-	{
-        //check if alive unit do not block resurrection
+			if(!blocking.empty())
+				return false;
+		}
 	}
 }
 

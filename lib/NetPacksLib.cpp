@@ -1286,7 +1286,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 	{
 	case Bonus::HP_REGENERATION:
 	{
-		int32_t toHeal = val;
+		int64_t toHeal = val;
 		st->stackState.heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
 		break;
 	}

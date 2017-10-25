@@ -114,7 +114,7 @@ EffectTarget StackEffect::transformTarget(const Mechanics * m, const Target & ai
 
 	std::set<const battle::Unit *> targets;
 
-	if(m->isMassive(spellLevel))
+	if(m->isMassive())
 	{
 		//ignore spellTarget and add all stacks
 		auto stacks = m->cb->battleGetUnitsIf(mainFilter);
@@ -200,7 +200,7 @@ bool StackEffect::isReceptive(const Mechanics * m, const battle::Unit * s) const
 
 bool StackEffect::isSmartTarget(const Mechanics * m, const battle::Unit * s, bool alwaysSmart) const
 {
-	const bool smart = m->isSmart(spellLevel) || alwaysSmart;
+	const bool smart = m->isSmart() || alwaysSmart;
 	const bool ignoreOwner = !smart;
 	return ignoreOwner || m->ownerMatches(s);
 }

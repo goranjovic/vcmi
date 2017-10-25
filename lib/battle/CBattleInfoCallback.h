@@ -69,8 +69,8 @@ public:
 
 	TDmgRange calculateDmgRange(const BattleAttackInfo & info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 
-	std::pair<ui32, ui32> battleEstimateDamage(const BattleAttackInfo & bai, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
-	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	TDmgRange battleEstimateDamage(const BattleAttackInfo & bai, TDmgRange * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	TDmgRange battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	si8 battleHasDistancePenalty(const CStack * stack, BattleHex destHex) const;
 	si8 battleHasDistancePenalty(const IBonusBearer * bonusBearer, BattleHex shooterPosition, BattleHex destHex) const;
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex) const; //checks if given stack has wall penalty

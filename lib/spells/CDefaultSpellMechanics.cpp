@@ -487,7 +487,7 @@ bool DefaultSpellMechanics::canBeCast(Problem & problem) const
 	//allow to cast spell if there is at least one smart target
 	if(requiresCreatureTarget())
 	{
-		CSpell::TargetInfo tinfo(owner, caster->getSpellSchoolLevel(mode, owner), mode);
+		CSpell::TargetInfo tinfo(owner, getRangeLevel(), mode);
 		bool targetExists = false;
 
 		for(const CStack * stack : cb->battleGetAllStacks())

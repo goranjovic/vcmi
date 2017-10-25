@@ -49,7 +49,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & AttackInf
 	BattleAttackInfo curBai = AttackInfo; //we'll modify here the stack state
 	for(int i = 0; i < totalAttacks; i++)
 	{
-		std::pair<ui32, ui32> retaliation(0,0);
+		TDmgRange retaliation(0,0);
 		auto attackDmg = getCbc()->battleEstimateDamage(curBai, &retaliation);
 
 		vstd::amin(attackDmg.first, curBai.defender.health.available());

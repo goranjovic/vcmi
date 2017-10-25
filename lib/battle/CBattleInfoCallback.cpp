@@ -831,7 +831,7 @@ TDmgRange CBattleInfoCallback::battleEstimateDamage(const CStack * attacker, con
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 
-std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, std::pair<ui32, ui32> * retaliationDmg) const
+TDmgRange CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, TDmgRange * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 
@@ -850,11 +850,11 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 			//TODO: rewrite using boost::numeric::interval
 			//TODO: rewire once more using interval-based fuzzy arithmetic
 
-			ui32 TDmgRange::* pairElems[] = {&TDmgRange::first, &TDmgRange::second};
+			int64_t TDmgRange::* pairElems[] = {&TDmgRange::first, &TDmgRange::second};
 			for (int i=0; i<2; ++i)
 			{
 				auto retaliationAttack = bai.reverse();
-				int32_t dmg = ret.*pairElems[i];
+				int64_t dmg = ret.*pairElems[i];
 				retaliationAttack.attacker.damage(dmg);
 				retaliationDmg->*pairElems[!i] = calculateDmgRange(retaliationAttack).*pairElems[!i];
 			}

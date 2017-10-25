@@ -17,8 +17,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 
-
-
 namespace spells
 {
 
@@ -41,7 +39,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 
 	for(auto & attackedCre : ctx.attackedCres)
 	{
-		int32_t stackHPgained = caster->getSpellBonus(owner, hpGained, attackedCre);
+		auto stackHPgained = caster->getSpellBonus(owner, hpGained, attackedCre);
 		CStackState state = attackedCre->asquire();
 		state.heal(stackHPgained, healLevel, healPower);
 
@@ -378,7 +376,7 @@ bool EarthquakeMechanics::canBeCast(Problem & problem) const
 		return adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 
-	CSpell::TargetInfo ti(owner, caster->getSpellSchoolLevel(mode, owner), mode);
+	CSpell::TargetInfo ti(owner, getRangeLevel(), mode);
 	if(ti.smart)
 	{
 		const auto side = cb->playerToSide(caster->getOwner());
@@ -414,7 +412,7 @@ bool HypnotizeMechanics::isImmuneByStack(const battle::Unit * obj) const
 	//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 	int64_t subjectHealth = obj->getAvailableHealth();
 	//apply 'damage' bonus for hypnotize, including hero specialty
-	int64_t maxHealth = caster->getSpellBonus(owner, owner->calculateRawEffectValue(caster->getEffectLevel(mode, owner), caster->getEffectPower(mode, owner), 1), obj);
+	auto maxHealth = caster->getSpellBonus(owner, owner->calculateRawEffectValue(caster->getEffectLevel(mode, owner), caster->getEffectPower(mode, owner), 1), obj);
 	if(subjectHealth > maxHealth)
 		return true;
 	return RegularSpellMechanics::isImmuneByStack(obj);
@@ -901,8 +899,7 @@ SpecialRisingSpellMechanics::SpecialRisingSpellMechanics(const IBattleCast * eve
 
 bool SpecialRisingSpellMechanics::canBeCastAt(BattleHex destination) const
 {
-	const auto level = caster->getSpellSchoolLevel(mode, owner);
-	const CSpell::TargetInfo ti(owner, level, mode);
+	const CSpell::TargetInfo ti(owner, getRangeLevel(), mode);
 	auto mainFilter = [ti, destination, this](const CStack * s) -> bool
 	{
 		const bool ownerMatches = !ti.smart || cb->battleMatchOwner(caster->getOwner(), s, owner->getPositiveness());

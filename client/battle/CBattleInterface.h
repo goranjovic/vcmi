@@ -55,7 +55,7 @@ class CAnimation;
 struct StackAttackedInfo
 {
 	const CStack *defender; //attacked stack
-	int32_t dmg; //damage dealt
+	int64_t dmg; //damage dealt
 	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack *attacker; //attacking stack
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack

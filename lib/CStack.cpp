@@ -240,7 +240,7 @@ int64_t CHealth::total() const
 	return static_cast<int64_t>(owner->unitMaxHealth()) * owner->unitBaseAmount();
 }
 
-void CHealth::damage(int32_t & amount)
+void CHealth::damage(int64_t & amount)
 {
 	const int32_t oldCount = getCount();
 
@@ -270,12 +270,12 @@ void CHealth::damage(int32_t & amount)
 	addResurrected(getCount() - oldCount);
 }
 
-void CHealth::heal(int32_t & amount, EHealLevel level, EHealPower power)
+void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
 	const int32_t unitHealth = owner->unitMaxHealth();
 	const int32_t oldCount = getCount();
 
-	int32_t maxHeal = std::numeric_limits<int32_t>::max();
+	int64_t maxHeal = std::numeric_limits<int64_t>::max();
 
 	switch(level)
 	{
@@ -797,7 +797,7 @@ const IUnitInfo * CStackState::getUnitInfo() const
 	return unit;
 }
 
-void CStackState::damage(int32_t & amount)
+void CStackState::damage(int64_t & amount)
 {
 	if(cloned)
 	{
@@ -817,7 +817,7 @@ void CStackState::damage(int32_t & amount)
 		ghostPending = true;
 }
 
-void CStackState::heal(int32_t & amount, EHealLevel level, EHealPower power)
+void CStackState::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
 	if(level == EHealLevel::HEAL && power == EHealPower::ONE_BATTLE)
 		logGlobal->error("Heal for one battle does not make sense");
@@ -1113,7 +1113,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand,
 			{
 				afterAttack.casts.use();
 				bsa.flags |= BattleStackAttacked::REBIRTH;
-				int32_t toHeal = afterAttack.unitMaxHealth() * resurrectedStackCount;
+				int64_t toHeal = afterAttack.unitMaxHealth() * resurrectedStackCount;
 				//TODO: use StackHealedOrResurrected
 				//TODO: add one-battle rebirth?
 				afterAttack.heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
@@ -1169,13 +1169,13 @@ ui8 CStack::getSpellSchoolLevel(const spells::Mode mode, const CSpell * spell, i
 	return skill;
 }
 
-ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const battle::Unit * affectedStack) const
+int64_t CStack::getSpellBonus(const CSpell * spell, int64_t base, const battle::Unit * affectedStack) const
 {
 	//stacks does not have sorcery-like bonuses (yet?)
 	return base;
 }
 
-ui32 CStack::getSpecificSpellBonus(const CSpell * spell, ui32 base) const
+int64_t CStack::getSpecificSpellBonus(const CSpell * spell, int64_t base) const
 {
 	return base;
 }

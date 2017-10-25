@@ -215,8 +215,8 @@ public:
 	virtual SpellID getSpellId() const = 0;
 	virtual std::string getSpellName() const = 0;
 
-	virtual bool isSmart(const int level) const = 0;
-	virtual bool isMassive(const int level) const = 0;
+	virtual bool isSmart() const = 0;
+	virtual bool isMassive() const = 0;
 
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
@@ -255,8 +255,8 @@ public:
 
 	IBattleCast::Value64 getEffectValue() const override;
 
-	bool isSmart(const int level) const override;
-	bool isMassive(const int level) const override;
+	bool isSmart() const override;
+	bool isMassive() const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
 

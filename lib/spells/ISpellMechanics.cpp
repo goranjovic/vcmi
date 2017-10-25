@@ -732,15 +732,15 @@ std::string BaseMechanics::getSpellName() const
 	return owner->name;
 }
 
-bool BaseMechanics::isSmart(const int level) const
+bool BaseMechanics::isSmart() const
 {
-	const CSpell::TargetInfo targetInfo(owner, level, mode);
+	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
 	return targetInfo.smart;
 }
 
-bool BaseMechanics::isMassive(const int level) const
+bool BaseMechanics::isMassive() const
 {
-	const CSpell::TargetInfo targetInfo(owner, level, mode);
+	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
 	return targetInfo.massive;
 }
 

@@ -112,7 +112,7 @@ void Damage::apply(IBattleState * battleState, const Mechanics * m, const Effect
 		const battle::Unit * unit = t.unitValue;
 		if(unit && unit->alive())
 		{
-			int32_t amount = m->owner->adjustRawDamage(m->caster, unit, rawDamage);
+			auto amount = m->owner->adjustRawDamage(m->caster, unit, rawDamage);
 
 			CStackStateInfo info;
 			CStackState state = unit->asquire();

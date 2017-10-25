@@ -32,8 +32,8 @@ public:
 	BattleHex tile; //tile from which we attack
 	BattleAttackInfo attack;
 
-	int damageDealt;
-	int damageReceived; //usually by counter-attack
+	int64_t damageDealt;
+	int64_t damageReceived; //usually by counter-attack
 	int tacticImpact;
 
 	int damageDiff() const;
