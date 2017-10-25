@@ -224,26 +224,46 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 3,
-						"type" : "LEVEL_SPELL_IMMUNITY",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+				"specialEffects":{
+					"spellImmunity":{
+						"type":"core:timed",
+						"bonus":{
+							"levelSpellImmunity":{
+								"val" : 3,
+								"type" : "LEVEL_SPELL_IMMUNITY",
+								"valueType" : "INDEPENDENT_MAX",
+								"duration" : "N_TURNS"
+							}
+						}
+					},
+					"dispel":{
+						"type":"core:dispel",
+						"optional":true,
+						"negative":true,
+						"neutral":true,
+						"positive":false
 					}
 				}
 			},
 			"advanced":{
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 4
+				"specialEffects":{
+					"spellImmunity":{
+						"bonus" :{
+							"levelSpellImmunity":{
+								"val" : 4
+							}
+						}
 					}
 				}
 			},
 			"expert":{
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 5
+				"specialEffects":{
+					"spellImmunity":{
+						"bonus":{
+							"levelSpellImmunity":{
+								"val" : 5
+							}
+						}
 					}
 				}
 			}

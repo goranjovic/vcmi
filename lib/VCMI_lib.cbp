@@ -20,6 +20,7 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib.include)" />
+					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -49,6 +50,7 @@
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
 					<Add directory="$(#zlib.include)" />
+					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -80,6 +82,7 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib64.include)" />
+					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -394,6 +397,8 @@
 		<Unit filename="spells/effects/Clone.h" />
 		<Unit filename="spells/effects/Damage.cpp" />
 		<Unit filename="spells/effects/Damage.h" />
+		<Unit filename="spells/effects/Dispel.cpp" />
+		<Unit filename="spells/effects/Dispel.h" />
 		<Unit filename="spells/effects/Effect.cpp" />
 		<Unit filename="spells/effects/Effect.h" />
 		<Unit filename="spells/effects/Effects.cpp" />

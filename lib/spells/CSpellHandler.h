@@ -353,10 +353,6 @@ public:
 		h & school;
 		h & animationInfo;
 
-		if(!h.saving)
-		{
-			setupMechanics();
-		}
 		//backward compatibility
 		//can not be added to level structure as level structure does not know spell id
 		if(!h.saving && version < 773)
@@ -364,6 +360,11 @@ public:
 			if(id == SpellID::DISRUPTING_RAY || id == SpellID::ACID_BREATH_DEFENSE)
 				for(auto & level : levels)
 					std::swap(level.effects, level.cumulativeEffects);
+		}
+
+		if(!h.saving)
+		{
+			setupMechanics();
 		}
 	}
 	friend class CSpellHandler;
@@ -450,7 +451,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & objects ;
+		h & objects;
 	}
 
 protected:

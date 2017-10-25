@@ -135,6 +135,21 @@
 		"levels" : {
 			"base":{
 				"targetModifier":{"smart":true},
+				"specialEffects":{
+					"heal":{
+						"type":"core:heal",
+						"healLevel":"heal",
+						"healPower":"permanent",
+						"optional":true
+					},
+					"cure":{
+						"type":"core:dispel",
+						"optional":true,
+						"negative":true,
+						"neutral":false,
+						"positive":false
+					}
+				},
 				"range" : "0"
 			},
 			"expert":{
@@ -158,7 +173,29 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"specialEffects":{
+					"heal":{
+						"type":"core:heal",
+						"healLevel":"resurrect",
+						"healPower":"oneBattle"
+					},
+					"cure":{
+						"type":"core:dispel",
+						"automatic": false,
+						"optional":true,
+						"negative":true,
+						"neutral":false,
+						"positive":false
+					}
+				},
 				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"specialEffects":{
+					"heal":{
+						"healPower":"permanent"
+					}
+				}
 			}
 		},
 		"flags" : {
@@ -184,6 +221,13 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"specialEffects":{
+					"heal":{
+						"type":"core:heal",
+						"healLevel":"resurrect",
+						"healPower":"permanent"
+					}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
@@ -231,6 +275,11 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"specialEffects":{
+					"teleport":{
+						"type":"core:teleport"
+					}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
@@ -271,7 +320,27 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"specialEffects":{
+					"clone":{
+						"maxTier":5,
+						"type":"core:clone"
+					}
+				},
 				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"specialEffects":{
+					"clone":{
+						"maxTier":6
+					}
+				}
+			},
+			"expert":{
+				"specialEffects":{
+					"clone":{
+						"maxTier":1000
+					}
+				}
 			}
 		},
 		"absoluteImmunity" : {
@@ -292,7 +361,15 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"specialEffects":{
+					"summon":{
+						"exclusive":true,
+						"id":"fireElemental",
+						"permanent":false,
+						"type":"core:summon"
+					}
+				}
 			}
 		},
 		"flags" : {
@@ -310,7 +387,15 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"specialEffects":{
+					"summon":{
+						"exclusive":true,
+						"id":"earthElemental",
+						"permanent":false,
+						"type":"core:summon"
+					}
+				}
 			}
 		},
 		"flags" : {
@@ -328,7 +413,15 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"specialEffects":{
+					"summon":{
+						"exclusive":true,
+						"id":"waterElemental",
+						"permanent":false,
+						"type":"core:summon"
+					}
+				}
 			}
 		},
 		"flags" : {
@@ -346,7 +439,15 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"specialEffects":{
+					"summon":{
+						"exclusive":true,
+						"id":"airElemental",
+						"permanent":false,
+						"type":"core:summon"
+					}
+				}
 			}
 		},
 		"flags" : {
