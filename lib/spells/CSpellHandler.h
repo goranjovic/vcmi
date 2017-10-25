@@ -443,7 +443,6 @@ public:
 	/**
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
 	 *
-	 * @return a list of allowed spells, the index is the spell id and the value either 0 for not allowed or 1 for allowed
 	 */
 	std::vector<bool> getDefaultAllowed() const override;
 

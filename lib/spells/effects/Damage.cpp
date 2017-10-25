@@ -18,6 +18,7 @@
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 
+
 static const std::string EFFECT_NAME = "core:damage";
 
 namespace spells

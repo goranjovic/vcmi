@@ -463,11 +463,6 @@ BattleHex BattleCast::getFirstDestinationHex() const
 	return target.at(0).hexValue;
 }
 
-//int BattleCast::getEffectValue() const
-//{
-//	return (effectValue == 0) ? spell->calculateRawEffectValue(effectLevel, effectPower, 1) : effectValue;
-//}
-
 ///ISpellMechanicsFactory
 ISpellMechanicsFactory::ISpellMechanicsFactory(const CSpell * s)
 	: spell(s)

@@ -195,14 +195,5 @@ public:
 	bool canBeCastAt(BattleHex destination) const override;
 };
 
-class DLL_LINKAGE TeleportMechanics : public RegularSpellMechanics
-{
-public:
-	TeleportMechanics(const IBattleCast * event);
-	bool canBeCast(Problem & problem) const override;
-protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, const BattleCast & parameters, SpellCastContext & ctx) const override;
-};
-
 } // namespace spells
 

@@ -105,6 +105,7 @@ set(lib_SRCS
 
 		spells/effects/Clone.cpp
 		spells/effects/Damage.cpp
+		spells/effects/Dispel.cpp
 		spells/effects/Effect.cpp
 		spells/effects/Effects.cpp
 		spells/effects/GlobalEffect.cpp
@@ -258,6 +259,7 @@ set(lib_HEADERS
 
 		spells/effects/Clone.h
 		spells/effects/Damage.h
+		spells/effects/Dispel.h
 		spells/effects/Effect.h
 		spells/effects/Effects.h
 		spells/effects/EffectsFwd.h

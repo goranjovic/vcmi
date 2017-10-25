@@ -1,5 +1,5 @@
 /*
- * Heal.h, part of VCMI engine
+ * Dispel.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,31 +11,38 @@
 #pragma once
 
 #include "StackEffect.h"
-#include "../../GameConstants.h"
+
+struct Bonus;
+class CSelector;
+class BonusList;
 
 namespace spells
 {
 namespace effects
 {
 
-class Heal : public StackEffect
+class Dispel : public StackEffect
 {
 public:
-	Heal(const int level);
-	virtual ~Heal();
+	Dispel(const int level);
+	virtual ~Dispel();
 
 	void apply(const PacketSender * server, RNG & rng, const Mechanics * m, const EffectTarget & target) const override;
 	void apply(IBattleState * battleState, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
+	bool isReceptive(const Mechanics * m, const battle::Unit * s) const override;
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;
 	void serializeJsonEffect(JsonSerializeFormat & handler) override final;
 
 private:
-    EHealLevel healLevel;
-	EHealPower healPower;
+	bool positive = false;
+	bool negative = false;
+	bool neutral = false;
 
-	int32_t minFullUnits;
+	std::shared_ptr<BonusList> getBonuses(const Mechanics * m, const battle::Unit * unit) const;
+
+	static bool mainSelector(const Bonus * bonus);
 };
 
 } // namespace effects
