@@ -286,9 +286,9 @@ public:
 
 	void run(bool resume);
 	void newTurn();
-	void handleAttackBeforeCasting(BattleAttack *bat);
-	void handleAfterAttackCasting (const BattleAttack & bat);
-	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
+	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
+	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
+	void attackCasting(bool ranged, Bonus::BonusType attackMode, const CStack * attacker, const CStack * defender);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);

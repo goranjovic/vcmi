@@ -946,6 +946,9 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 
 void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter)
 {
+	if(first && !counter)
+		handleAttackBeforeCasting(ranged, attacker, defender);
+
 	BattleAttack bat;
 	bat.stackAttacking = attacker->unitId();
 
@@ -988,15 +991,16 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		}
 	}
 	// only primary target
-	applyBattleEffects(bat, attacker, defender, distance, false);
+	if(defender->alive())
+		applyBattleEffects(bat, attacker, defender, distance, false);
 
-	if (!bat.shot()) //multiple-hex attack - only in meele
+	if(!ranged) //multiple-hex attack - only in meele
 	{
 		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(attacker, targetHex); //creatures other than primary target
 
-		for (const CStack * stack : attackedCreatures)
+		for(const CStack * stack : attackedCreatures)
 		{
-			if (stack != defender) //do not hit same stack twice
+			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
 				applyBattleEffects(bat, attacker, stack, distance, true);
 			}
@@ -1004,7 +1008,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	}
 
 	const std::shared_ptr<Bonus> bonus = attacker->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
-	if (bonus && (bat.shot())) //TODO: make it work in melee?
+	if(bonus && ranged) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
 		bat.flags |= BattleAttack::SPELL_LIKE;
@@ -1016,9 +1020,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		//TODO: get exact attacked hex for defender
 
-		for (const CStack * stack : attackedCreatures)
+		for(const CStack * stack : attackedCreatures)
 		{
-			if (stack != defender) //do not hit same stack twice
+			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
 				applyBattleEffects(bat, attacker, stack, distance, true);
 			}
@@ -1036,16 +1040,14 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		}
 	}
 
-	if(first && !counter)
-		handleAttackBeforeCasting(&bat);
-
 	sendAndApply(&bat);
-	handleAfterAttackCasting(bat);
+
+	handleAfterAttackCasting(ranged, attacker, defender);
 }
 void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
-	if (secondary)
+	if(secondary)
 		bsa.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
 	bsa.attackerID = att->ID;
 	bsa.stackAttacked = def->ID;
@@ -5309,7 +5311,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	return true;
 }
 
-void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker)
+void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const CStack * attacker, const CStack * defender)
 {
 	spells::Mode mode = (attackMode == Bonus::SPELL_AFTER_ATTACK) ? spells::Mode::AFTER_ATTACK : spells::Mode::BEFORE_ATTACK;
 
@@ -5323,17 +5325,8 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 		}
 		for(SpellID spellID : spellsToCast)
 		{
-			const CStack * oneOfAttacked = nullptr;
-			for(auto & elem : bat.bsa)
-			{
-				if(!elem.isSecondary()) //apply effects only to primary target if it's alive
-				{
-					oneOfAttacked = gs->curB->battleGetStackByID(elem.stackAttacked);
-					break;
-				}
-			}
 			bool castMe = false;
-			if(oneOfAttacked == nullptr || !oneOfAttacked->alive())
+			if(!defender->alive())
 			{
 				logGlobal->debug("attackCasting: all attacked creatures have been killed");
 				return;
@@ -5344,14 +5337,14 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			{
 				vstd::amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
 				int meleeRanged = sf->additionalInfo / 1000;
-				if (meleeRanged == 0 || (meleeRanged == 1 && bat.shot()) || (meleeRanged == 2 && !bat.shot()))
+				if (meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}
 			int chance = attacker->valOfBonuses((Selector::typeSubtype(attackMode, spellID)));
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if(!spell->canBeCastAt(gs->curB, mode, attacker, oneOfAttacked->getPosition()))
+			if(!spell->canBeCastAt(gs->curB, mode, attacker, defender->getPosition()))
 				continue;
 
 			//check if spell should be cast (probability handling)
@@ -5363,36 +5356,22 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			{
 				spells::BattleCast parameters(gs->curB, attacker, mode, spell);
 				parameters.setSpellLevel(spellLevel);
-				parameters.aimToStack(oneOfAttacked);
+				parameters.aimToStack(defender);
 				parameters.cast(spellEnv);
 			}
 		}
 	}
 }
 
-void CGameHandler::handleAttackBeforeCasting(BattleAttack *bat)
+void CGameHandler::handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender)
 {
-	const CStack * attacker = gs->curB->battleGetStackByID(bat->stackAttacking);
-	attackCasting(*bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no death stare / acid breath needed?
-	// filter possibly dead stacks
-	bat->bsa.erase(std::remove_if(bat->bsa.begin(), bat->bsa.end(),
-	               [this](const BattleStackAttacked &bsa)
-	               {
-	                 return battleGetStackByID(bsa.stackAttacked) == nullptr;
-	               }),
-	               bat->bsa.end());
+	attackCasting(ranged, Bonus::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
 }
 
-void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
+void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender)
 {
-	const CStack * attacker = gs->curB->battleGetStackByID(bat.stackAttacking);
-	if (!attacker || bat.bsa.empty()) // can be already dead
+	if (!attacker->alive() || !defender->alive()) // can be already dead
 		return;
-
-	const CStack * defender = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked);
-
-	if(!defender)
-		return;//already dead
 
 	auto cast = [=](SpellID spellID, int power)
 	{
@@ -5405,7 +5384,7 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 		parameters.cast(spellEnv);
 	};
 
-	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
+	attackCasting(ranged, Bonus::SPELL_AFTER_ATTACK, attacker, defender);
 
 	if(!defender->alive())
 	{
@@ -5486,7 +5465,7 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 			return; //wrong subtype
 
 		BattleStacksRemoved victimInfo;
-		victimInfo.stackIDs.insert(bat.bsa.at(0).stackAttacked);
+		victimInfo.stackIDs.insert(defender->unitId());
 
 		sendAndApply(&victimInfo);
 		sendAndApply(&resurrectInfo);
