@@ -40,11 +40,11 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	for(auto & attackedCre : ctx.attackedCres)
 	{
 		auto stackHPgained = caster->getSpellBonus(owner, hpGained, attackedCre);
-		CStackState state = attackedCre->asquire();
-		state.heal(stackHPgained, healLevel, healPower);
+		auto state = attackedCre->asquire();
+		state->heal(stackHPgained, healLevel, healPower);
 
 		CStackStateInfo info;
-		state.toInfo(info);
+		state->toInfo(info);
 
 		info.stackId = attackedCre->ID;
 		info.healthDelta = stackHPgained;

@@ -303,8 +303,8 @@ int DefaultSpellMechanics::defaultDamageEffect(const SpellCastEnvironment * env,
 
 		bsa.stackAttacked = affected->unitId();
 		bsa.attackerID = -1;
-		CStackState state = affected->asquire();
-		CStack::prepareAttacked(bsa, env->getRandomGenerator(), state);
+		auto state = affected->asquire();
+		CStack::prepareAttacked(bsa, env->getRandomGenerator(), *state);
 		si.stacks.push_back(bsa);
 	}
 

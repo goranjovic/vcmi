@@ -72,7 +72,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 				if(CStack::isMeleeAttackPossible(attackerInfo, defender, hex))
 					possibleAttacks.push_back(GenerateAttackInfo(false, hex));
 
-			if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility &pa) { return pa.enemy.unitId() == defender->unitId(); }))
+			if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility & pa) { return pa.enemy->unitId() == defender->unitId(); }))
 				unreachableEnemies.push_back(defender);
 		}
 	}

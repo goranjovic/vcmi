@@ -15,8 +15,8 @@ class IBonusBearer;
 
 struct DLL_LINKAGE BattleAttackInfo
 {
-	CStackState attacker;
-	CStackState defender;
+	std::shared_ptr<battle::CUnitState> attacker;
+	std::shared_ptr<battle::CUnitState> defender;
 
 	bool shooting;
 	int chargedFields;

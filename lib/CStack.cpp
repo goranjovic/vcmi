@@ -432,10 +432,8 @@ bool Unit::coversPos(BattleHex pos) const
 	return vstd::contains(CStack::getHexes(getPosition(), doubleWide(), unitSide()), pos);
 }
 
-}//namespace battle
-
-///CStackState
-CStackState::CStackState(const IUnitInfo * unit_, const IBonusBearer * bonus_, const IUnitEnvironment * env_)
+///CUnitState
+CUnitState::CUnitState(const IUnitInfo * unit_, const IBonusBearer * bonus_, const IUnitEnvironment * env_)
 	: unit(unit_),
 	bonus(bonus_),
 	env(env_),
@@ -460,7 +458,7 @@ CStackState::CStackState(const IUnitInfo * unit_, const IBonusBearer * bonus_, c
 
 }
 
-CStackState::CStackState(const CStackState & other)
+CUnitState::CUnitState(const CUnitState & other)
 	: unit(other.unit),
 	bonus(other.bonus),
 	env(other.env),
@@ -485,7 +483,7 @@ CStackState::CStackState(const CStackState & other)
 
 }
 
-CStackState & CStackState::operator=(const CStackState & other)
+CUnitState & CUnitState::operator=(const CUnitState & other)
 {
 	//do not change unit and bonus(?) info
 	cloned = other.cloned;
@@ -508,7 +506,7 @@ CStackState & CStackState::operator=(const CStackState & other)
 	return *this;
 }
 
-bool CStackState::ableToRetaliate() const
+bool CUnitState::ableToRetaliate() const
 {
 	return alive()
 		&& counterAttacks.canUse()
@@ -517,89 +515,89 @@ bool CStackState::ableToRetaliate() const
 		&& !hasBonusOfType(Bonus::NO_RETALIATION);
 }
 
-bool CStackState::alive() const
+bool CUnitState::alive() const
 {
 	return health.available() > 0;
 }
 
-bool CStackState::isGhost() const
+bool CUnitState::isGhost() const
 {
 	return ghost;
 }
 
-bool CStackState::isClone() const
+bool CUnitState::isClone() const
 {
 	return cloned;
 }
 
-bool CStackState::hasClone() const
+bool CUnitState::hasClone() const
 {
 	return cloneID > 0;
 }
 
-bool CStackState::canCast() const
+bool CUnitState::canCast() const
 {
 	return casts.canUse(1);//do not check specific cast abilities here
 }
 
-bool CStackState::isCaster() const
+bool CUnitState::isCaster() const
 {
 	return casts.total() > 0;//do not check specific cast abilities here
 }
 
-bool CStackState::canShoot() const
+bool CUnitState::canShoot() const
 {
 	return shots.canUse(1) && hasBonusOfType(Bonus::SHOOTER);
 }
 
-bool CStackState::isShooter() const
+bool CUnitState::isShooter() const
 {
 	return shots.total() > 0 && hasBonusOfType(Bonus::SHOOTER);
 }
 
-int32_t CStackState::getKilled() const
+int32_t CUnitState::getKilled() const
 {
 	int32_t res = unitBaseAmount() - health.getCount() + health.getResurrected();
 	vstd::amax(res, 0);
 	return res;
 }
 
-int32_t CStackState::getCount() const
+int32_t CUnitState::getCount() const
 {
 	return health.getCount();
 }
 
-int32_t CStackState::getFirstHPleft() const
+int32_t CUnitState::getFirstHPleft() const
 {
 	return health.getFirstHPleft();
 }
 
-int64_t CStackState::getAvailableHealth() const
+int64_t CUnitState::getAvailableHealth() const
 {
 	return health.available();
 }
 
-int64_t CStackState::getTotalHealth() const
+int64_t CUnitState::getTotalHealth() const
 {
 	return health.total();
 }
 
-BattleHex CStackState::getPosition() const
+BattleHex CUnitState::getPosition() const
 {
 	return position;
 }
 
-int32_t CStackState::getInitiative(int turn) const
+int32_t CUnitState::getInitiative(int turn) const
 {
 	return valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
 }
 
-bool CStackState::canMove(int turn) const
+bool CUnitState::canMove(int turn) const
 {
 	return alive() && !hasBonus(Selector::type(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
 }
 
-bool CStackState::defended(int turn) const
+bool CUnitState::defended(int turn) const
 {
 	if(!turn)
 		return defending;
@@ -607,7 +605,7 @@ bool CStackState::defended(int turn) const
 		return false;
 }
 
-bool CStackState::moved(int turn) const
+bool CUnitState::moved(int turn) const
 {
 	if(!turn)
 		return movedThisTurn;
@@ -615,14 +613,14 @@ bool CStackState::moved(int turn) const
 		return false;
 }
 
-bool CStackState::willMove(int turn) const
+bool CUnitState::willMove(int turn) const
 {
 	return (turn ? true : !defending)
 		   && !moved(turn)
 		   && canMove(turn);
 }
 
-bool CStackState::waited(int turn) const
+bool CUnitState::waited(int turn) const
 {
 	if(!turn)
 		return waiting;
@@ -630,42 +628,42 @@ bool CStackState::waited(int turn) const
 		return false;
 }
 
-uint32_t CStackState::unitId() const
+uint32_t CUnitState::unitId() const
 {
 	return unit->unitId();
 }
 
-ui8 CStackState::unitSide() const
+ui8 CUnitState::unitSide() const
 {
 	return unit->unitSide();
 }
 
-const CCreature * CStackState::creatureType() const
+const CCreature * CUnitState::creatureType() const
 {
 	return unit->creatureType();
 }
 
-PlayerColor CStackState::unitOwner() const
+PlayerColor CUnitState::unitOwner() const
 {
 	return unit->unitOwner();
 }
 
-SlotID CStackState::unitSlot() const
+SlotID CUnitState::unitSlot() const
 {
 	return unit->unitSlot();
 }
 
-int32_t CStackState::unitMaxHealth() const
+int32_t CUnitState::unitMaxHealth() const
 {
 	return unit->unitMaxHealth();
 }
 
-int32_t CStackState::unitBaseAmount() const
+int32_t CUnitState::unitBaseAmount() const
 {
 	return unit->unitBaseAmount();
 }
 
-int CStackState::battleQueuePhase(int turn) const
+int CUnitState::battleQueuePhase(int turn) const
 {
 	if(turn <= 0 && waited()) //consider waiting state only for ongoing round
 	{
@@ -684,12 +682,12 @@ int CStackState::battleQueuePhase(int turn) const
 	}
 }
 
-CStackState CStackState::asquire() const
+std::shared_ptr<CUnitState> CUnitState::asquire() const
 {
-	return CStackState(*this);
+	return std::make_shared<CUnitState>(*this);
 }
 
-void CStackState::serializeJson(JsonSerializeFormat & handler)
+void CUnitState::serializeJson(JsonSerializeFormat & handler)
 {
 	if(!handler.saving)
 		reset();
@@ -716,13 +714,13 @@ void CStackState::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("position", position);
 }
 
-void CStackState::localInit()
+void CUnitState::localInit()
 {
 	reset();
 	health.init();
 }
 
-void CStackState::reset()
+void CUnitState::reset()
 {
 	cloned = false;
 	defending = false;
@@ -746,7 +744,7 @@ void CStackState::reset()
 	position = BattleHex::INVALID;
 }
 
-void CStackState::swap(CStackState & other)
+void CUnitState::swap(CUnitState & other)
 {
 	std::swap(cloned, other.cloned);
 	std::swap(defending, other.defending);
@@ -772,7 +770,7 @@ void CStackState::swap(CStackState & other)
 	std::swap(position, other.position);
 }
 
-void CStackState::toInfo(CStackStateInfo & info)
+void CUnitState::toInfo(CStackStateInfo & info)
 {
 	info.stackId = unitId();
 
@@ -782,7 +780,7 @@ void CStackState::toInfo(CStackStateInfo & info)
 	ser.serializeStruct("state", *this);
 }
 
-void CStackState::fromInfo(const CStackStateInfo & info)
+void CUnitState::fromInfo(const CStackStateInfo & info)
 {
 	if(info.stackId != unitId())
 		logGlobal->error("Deserialised state from wrong stack");
@@ -792,12 +790,12 @@ void CStackState::fromInfo(const CStackStateInfo & info)
     deser.serializeStruct("state", *this);
 }
 
-const IUnitInfo * CStackState::getUnitInfo() const
+const IUnitInfo * CUnitState::getUnitInfo() const
 {
 	return unit;
 }
 
-void CStackState::damage(int64_t & amount)
+void CUnitState::damage(int64_t & amount)
 {
 	if(cloned)
 	{
@@ -817,7 +815,7 @@ void CStackState::damage(int64_t & amount)
 		ghostPending = true;
 }
 
-void CStackState::heal(int64_t & amount, EHealLevel level, EHealPower power)
+void CUnitState::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
 	if(level == EHealLevel::HEAL && power == EHealPower::ONE_BATTLE)
 		logGlobal->error("Heal for one battle does not make sense");
@@ -827,10 +825,12 @@ void CStackState::heal(int64_t & amount, EHealLevel level, EHealPower power)
 		health.heal(amount, level, power);
 }
 
-const TBonusListPtr CStackState::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
+const TBonusListPtr CUnitState::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	return bonus->getAllBonuses(selector, limit, root, cachingStr);
 }
+
+}//namespace battle
 
 ///CStack
 CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, SlotID S)
@@ -1074,9 +1074,9 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand)
 	prepareAttacked(bsa, rand, stackState);
 }
 
-void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const CStackState & customState)
+void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const battle::CUnitState & customState)
 {
-	CStackState afterAttack = customState;
+	battle::CUnitState afterAttack = customState;
 	afterAttack.damage(bsa.damageAmount);
 
 	bsa.killedAmount = customState.getCount() - afterAttack.getCount();
@@ -1385,9 +1385,9 @@ BattleHex CStack::getPosition() const
 	return stackState.getPosition();
 }
 
-CStackState CStack::asquire() const
+std::shared_ptr<battle::CUnitState> CStack::asquire() const
 {
-	return CStackState(stackState);
+	return std::make_shared<battle::CUnitState>(stackState);
 }
 
 int CStack::battleQueuePhase(int turn) const

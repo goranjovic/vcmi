@@ -17,13 +17,13 @@ class HypotheticBattle;
 class StackWithBonuses : public IBonusBearer, public IUnitEnvironment
 {
 public:
-	CStackState state;
+	battle::CUnitState state;
 
 	std::vector<Bonus> bonusesToAdd;
 	std::vector<Bonus> bonusesToUpdate;
 	std::set<std::shared_ptr<Bonus>> bonusesToRemove;
 
-	StackWithBonuses(const CStackState * Stack);
+	StackWithBonuses(const battle::CUnitState * Stack);
 	virtual ~StackWithBonuses();
 
 	///IBonusBearer

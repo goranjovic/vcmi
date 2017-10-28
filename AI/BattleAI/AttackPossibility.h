@@ -28,7 +28,7 @@ public:
 class AttackPossibility
 {
 public:
-	CStackState enemy; //redundant (to attack.defender) but looks nice
+	std::shared_ptr<battle::CUnitState> enemy; //redundant (to attack.defender) but looks nice
 	BattleHex tile; //tile from which we attack
 	BattleAttackInfo attack;
 
@@ -39,6 +39,6 @@ public:
 	int damageDiff() const;
 	int attackValue() const;
 
-	static AttackPossibility evaluate(const BattleAttackInfo &AttackInfo, BattleHex hex);
+	static AttackPossibility evaluate(const BattleAttackInfo & AttackInfo, BattleHex hex);
 	static Priorities * priorities;
 };

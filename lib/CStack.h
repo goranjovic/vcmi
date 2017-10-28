@@ -18,13 +18,13 @@
 struct BattleStackAttacked;
 class BattleInfo;
 class CStack;
-class CStackState;
 class CStackStateInfo;
 class JsonSerializeFormat;
 
 namespace battle
 {
 	class Unit;
+	class CUnitState;
 }
 
 class DLL_LINKAGE IUnitEnvironment
@@ -190,7 +190,7 @@ public:
 	virtual bool willMove(int turn = 0) const = 0; //if stack has remaining move this turn
 	virtual bool waited(int turn = 0) const = 0;
 
-	virtual CStackState asquire() const = 0;
+	virtual std::shared_ptr<CUnitState> asquire() const = 0;
 
 	virtual int battleQueuePhase(int turn) const = 0;
 
@@ -200,10 +200,8 @@ public:
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
 };
 
-}
-
 ///mutable part of CStack
-class DLL_LINKAGE CStackState : public battle::Unit
+class DLL_LINKAGE CUnitState : public battle::Unit
 {
 public:
 	bool cloned;
@@ -229,10 +227,10 @@ public:
 	///position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	BattleHex position;
 
-	explicit CStackState(const IUnitInfo * unit_, const IBonusBearer * bonus_, const IUnitEnvironment * env_);
-	CStackState(const CStackState & other);
+	explicit CUnitState(const IUnitInfo * unit_, const IBonusBearer * bonus_, const IUnitEnvironment * env_);
+	CUnitState(const CUnitState & other);
 
-	CStackState & operator=(const CStackState & other);
+	CUnitState & operator=(const CUnitState & other);
 
 	bool ableToRetaliate() const override;
 	bool alive() const override;
@@ -272,7 +270,7 @@ public:
 	int32_t unitMaxHealth() const override;
 	int32_t unitBaseAmount() const override;
 
-	CStackState asquire() const	override;
+	std::shared_ptr<CUnitState> asquire() const override;
 
 	int battleQueuePhase(int turn) const override;
 
@@ -281,7 +279,7 @@ public:
 
 	void localInit();
 	void serializeJson(JsonSerializeFormat & handler);
-	void swap(CStackState & other);
+	void swap(CUnitState & other);
 
 	void toInfo(CStackStateInfo & info);
 	void fromInfo(const CStackStateInfo & info);
@@ -299,6 +297,8 @@ private:
 	void reset();
 };
 
+}//namespace battle
+
 class DLL_LINKAGE CStack : public CBonusSystemNode, public spells::Caster, public battle::Unit, public IUnitEnvironment
 {
 public:
@@ -313,7 +313,7 @@ public:
 	ui8 side;
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
-	CStackState stackState;
+	battle::CUnitState stackState;
 
 	CStack(const CStackInstance * base, PlayerColor O, int I, ui8 Side, SlotID S);
 	CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255));
@@ -353,7 +353,7 @@ public:
 	BattleHex::EDir destShiftDir() const;
 
 	void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand) const; //requires bsa.damageAmout filled
-	static void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const CStackState & customState); //requires bsa.damageAmout filled
+	static void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const battle::CUnitState & customState); //requires bsa.damageAmout filled
 
 	///spells::Caster
 
@@ -415,7 +415,7 @@ public:
 	int64_t getTotalHealth() const override;
 
 	BattleHex getPosition() const override;
-	CStackState asquire() const	override;
+	std::shared_ptr<battle::CUnitState> asquire() const	override;
 
 	int battleQueuePhase(int turn) const override;
 	std::string getDescription() const override;

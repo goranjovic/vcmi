@@ -23,7 +23,7 @@ void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 	}
 }
 
-StackWithBonuses::StackWithBonuses(const CStackState * Stack)
+StackWithBonuses::StackWithBonuses(const battle::CUnitState * Stack)
 	: state(Stack->getUnitInfo(), this, this),
 	origBearer(Stack)
 {

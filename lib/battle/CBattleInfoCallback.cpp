@@ -609,19 +609,19 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 		return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
 	};
 
-	const IBonusBearer * attackerBonuses = &info.attacker;
-	const IBonusBearer * defenderBonuses = &info.defender;
+	const IBonusBearer * attackerBonuses = info.attacker.get();
+	const IBonusBearer * defenderBonuses = info.defender.get();
 
 	double additiveBonus = 1.0, multBonus = 1.0,
-			minDmg = attackerBonuses->getMinDamage() * info.attacker.getCount(),//TODO: ONLY_MELEE_FIGHT / ONLY_DISTANCE_FIGHT
-			maxDmg = attackerBonuses->getMaxDamage() * info.attacker.getCount();
+			minDmg = attackerBonuses->getMinDamage() * info.attacker->getCount(),//TODO: ONLY_MELEE_FIGHT / ONLY_DISTANCE_FIGHT
+			maxDmg = attackerBonuses->getMaxDamage() * info.attacker->getCount();
 
-	if(info.attacker.creatureIndex() == CreatureID::ARROW_TOWERS)
+	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
 	{
-		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(battleGetDefendedTown(), &info.attacker, minDmg, maxDmg);
+		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(battleGetDefendedTown(), info.attacker.get(), minDmg, maxDmg);
 	}
 
-	if(attackerBonuses->hasBonusOfType(Bonus::SIEGE_WEAPON) && info.attacker.creatureIndex() != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
+	if(attackerBonuses->hasBonusOfType(Bonus::SIEGE_WEAPON) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		auto retreiveHeroPrimSkill = [&](int skill) -> int
 		{
@@ -664,7 +664,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 
 		for(auto & affectedId : affectedIds)
 		{
-			if(info.defender.creatureIndex() == affectedId)
+			if(info.defender->creatureIndex() == affectedId)
 			{
 				attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getPower(spLevel);
 				break;
@@ -697,7 +697,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	multBonus *= (std::max(0, 100 - defenderBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARMORER))) / 100.0;
 
 	//handling hate effect
-	additiveBonus += attackerBonuses->valOfBonuses(Bonus::HATE, info.defender.creatureIndex()) / 100.;
+	additiveBonus += attackerBonuses->valOfBonuses(Bonus::HATE, info.defender->creatureIndex()) / 100.;
 
 	//luck bonus
 	if(info.luckyHit)
@@ -768,8 +768,8 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	};
 
 	//wall / distance penalty + advanced air shield
-	const bool distPenalty = !attackerBonuses->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY) && battleHasDistancePenalty(attackerBonuses, info.attacker.getPosition(), info.defender.getPosition());
-	const bool obstaclePenalty = battleHasWallPenalty(attackerBonuses, info.attacker.getPosition(), info.defender.getPosition());
+	const bool distPenalty = !attackerBonuses->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY) && battleHasDistancePenalty(attackerBonuses, info.attacker->getPosition(), info.defender->getPosition());
+	const bool obstaclePenalty = battleHasWallPenalty(attackerBonuses, info.attacker->getPosition(), info.defender->getPosition());
 
 	if(info.shooting)
 	{
@@ -788,7 +788,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	}
 
 	// psychic elementals versus mind immune units 50%
-	if(info.attacker.creatureIndex() == CreatureID::PSYCHIC_ELEMENTAL && defenderBonuses->hasBonusOfType(Bonus::MIND_IMMUNITY))
+	if(info.attacker->creatureIndex() == CreatureID::PSYCHIC_ELEMENTAL && defenderBonuses->hasBonusOfType(Bonus::MIND_IMMUNITY))
 	{
 		multBonus *= 0.5;
 	}
@@ -855,7 +855,7 @@ TDmgRange CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai
 			{
 				auto retaliationAttack = bai.reverse();
 				int64_t dmg = ret.*pairElems[i];
-				retaliationAttack.attacker.damage(dmg);
+				retaliationAttack.attacker->damage(dmg);
 				retaliationDmg->*pairElems[!i] = calculateDmgRange(retaliationAttack).*pairElems[!i];
 			}
 		}

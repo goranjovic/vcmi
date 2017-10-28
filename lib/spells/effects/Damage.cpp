@@ -116,9 +116,9 @@ void Damage::apply(IBattleState * battleState, const Mechanics * m, const Effect
 			auto amount = m->owner->adjustRawDamage(m->caster, unit, rawDamage);
 
 			CStackStateInfo info;
-			CStackState state = unit->asquire();
-			state.damage(amount);
-			state.toInfo(info);
+			auto state = unit->asquire();
+			state->damage(amount);
+			state->toInfo(info);
 			battleState->updateUnit(info);
 		}
 	}

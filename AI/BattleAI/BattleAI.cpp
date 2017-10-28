@@ -88,9 +88,9 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		{
 			auto hlp = targets.bestAction();
 			if(hlp.attack.shooting)
-				return BattleAction::makeShotAttack(stack, &hlp.enemy);
+				return BattleAction::makeShotAttack(stack, hlp.enemy.get());
 			else
-				return BattleAction::makeMeleeAttack(stack, &hlp.enemy, hlp.tile);
+				return BattleAction::makeMeleeAttack(stack, hlp.enemy.get(), hlp.tile);
 		}
 		else
 		{
@@ -244,12 +244,12 @@ void CBattleAI::attemptCastingSpell()
 					AttackPossibility ap = pt.bestAction();
 
 					auto swb = state->getForUpdate(unit->unitId());
-					swb->state = ap.attack.attacker;
+					swb->state = *ap.attack.attacker;
 					swb->state.position = ap.tile;
 
 
-					swb = state->getForUpdate(ap.attack.defender.unitId());
-					swb->state = ap.attack.defender;
+					swb = state->getForUpdate(ap.attack.defender->unitId());
+					swb->state = *ap.attack.defender;
 				}
 
 				auto bav = pt.bestActionValue();

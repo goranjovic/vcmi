@@ -1044,7 +1044,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	{
 		BattleStacksChanged pack;
 
-		CStackState state = att->stackState;
+		battle::CUnitState state = att->stackState;
 		state.heal(toHeal, level, power);
 
 		CStackStateInfo info;
@@ -4302,8 +4302,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				int64_t toHeal = healer->getCount() * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
 
 				//TODO: allow resurrection for mods
-				CStackState state = destStack->asquire();
-				state.heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
+				auto state = destStack->asquire();
+				state->heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
 
 				if(toHeal == 0)
 				{
@@ -4321,7 +4321,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					pack.battleLog.push_back(text);
 
 					CStackStateInfo info;
-					state.toInfo(info);
+					state->toInfo(info);
 					info.stackId = destStack->ID;
 					info.healthDelta = toHeal;
 					pack.changedStacks.push_back(info);

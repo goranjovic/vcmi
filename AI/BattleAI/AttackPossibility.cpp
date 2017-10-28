@@ -14,20 +14,20 @@ int AttackPossibility::damageDiff() const
 {
 	if (!priorities)
 		priorities = new Priorities();
-	const auto dealtDmgValue = priorities->stackEvaluator(&enemy) * damageDealt;
-	const auto receivedDmgValue = priorities->stackEvaluator(&attack.attacker) * damageReceived;
+	const auto dealtDmgValue = priorities->stackEvaluator(enemy.get()) * damageDealt;
+	const auto receivedDmgValue = priorities->stackEvaluator(attack.attacker.get()) * damageReceived;
 
 	int diff = 0;
 
 	//friendly fire or not
-	if(attack.attacker.unitSide() == enemy.unitSide())
+	if(attack.attacker->unitSide() == enemy->unitSide())
 		diff = -dealtDmgValue - receivedDmgValue;
 	else
 		diff = dealtDmgValue - receivedDmgValue;
 
 	//mind control
-	auto actualSide = getCbc()->playerToSide(getCbc()->battleGetOwner(&attack.attacker));
-	if(actualSide && actualSide.get() != attack.attacker.unitSide())
+	auto actualSide = getCbc()->playerToSide(getCbc()->battleGetOwner(attack.attacker.get()));
+	if(actualSide && actualSide.get() != attack.attacker->unitSide())
 		diff = -diff;
 	return diff;
 }
@@ -39,10 +39,10 @@ int AttackPossibility::attackValue() const
 
 AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & AttackInfo, BattleHex hex)
 {
-	const int remainingCounterAttacks = AttackInfo.defender.counterAttacks.available();
-	const bool counterAttacksBlocked = AttackInfo.attacker.hasBonusOfType(Bonus::BLOCKS_RETALIATION) || AttackInfo.defender.hasBonusOfType(Bonus::NO_RETALIATION);
+	const int remainingCounterAttacks = AttackInfo.defender->counterAttacks.available();
+	const bool counterAttacksBlocked = AttackInfo.attacker->hasBonusOfType(Bonus::BLOCKS_RETALIATION) || AttackInfo.defender->hasBonusOfType(Bonus::NO_RETALIATION);
 
-	const int totalAttacks = 1 + AttackInfo.attacker.getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue();
+	const int totalAttacks = 1 + AttackInfo.attacker->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue();
 
 	AttackPossibility ap = {AttackInfo.defender, hex, AttackInfo, 0, 0, 0};
 
@@ -52,11 +52,11 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & AttackInf
 		TDmgRange retaliation(0,0);
 		auto attackDmg = getCbc()->battleEstimateDamage(curBai, &retaliation);
 
-		vstd::amin(attackDmg.first, curBai.defender.health.available());
-		vstd::amin(attackDmg.second, curBai.defender.health.available());
+		vstd::amin(attackDmg.first, curBai.defender->health.available());
+		vstd::amin(attackDmg.second, curBai.defender->health.available());
 
-		vstd::amin(retaliation.first, curBai.attacker.health.available());
-		vstd::amin(retaliation.second, curBai.attacker.health.available());
+		vstd::amin(retaliation.first, curBai.attacker->health.available());
+		vstd::amin(retaliation.second, curBai.attacker->health.available());
 
 		ap.damageDealt = (attackDmg.first + attackDmg.second) / 2;
 		ap.damageReceived = (retaliation.first + retaliation.second) / 2;
@@ -64,11 +64,11 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & AttackInf
 		if(remainingCounterAttacks <= i || counterAttacksBlocked)
 			ap.damageReceived = 0;
 
-		curBai.attacker.damage(ap.damageReceived);
-		curBai.defender.damage(ap.damageDealt);
-		if(!curBai.attacker.alive())
+		curBai.attacker->damage(ap.damageReceived);
+		curBai.defender->damage(ap.damageDealt);
+		if(!curBai.attacker->alive())
 			break;
-		if(!curBai.defender.alive())
+		if(!curBai.defender->alive())
 			break;
 	}
 

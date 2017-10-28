@@ -53,11 +53,11 @@ void Heal::apply(const PacketSender * server, RNG & rng, const Mechanics * m, co
 		{
 			auto unitHPgained = m->caster->getSpellBonus(m->owner, hpGained, unit);
 
-			CStackState state = unit->asquire();
-			state.heal(unitHPgained, healLevel, healPower);
+			auto state = unit->asquire();
+			state->heal(unitHPgained, healLevel, healPower);
 
 			CStackStateInfo info;
-			state.toInfo(info);
+			state->toInfo(info);
 
 			info.stackId = unit->unitId();
 			info.healthDelta = unitHPgained;
@@ -81,11 +81,11 @@ void Heal::apply(IBattleState * battleState, const Mechanics * m, const EffectTa
 		{
 			auto unitHPgained = m->caster->getSpellBonus(m->owner, hpGained, unit);
 
-			CStackState state = unit->asquire();
-			state.heal(unitHPgained, healLevel, healPower);
+			auto state = unit->asquire();
+			state->heal(unitHPgained, healLevel, healPower);
 
 			CStackStateInfo info;
-			state.toInfo(info);
+			state->toInfo(info);
 
 			info.stackId = unit->unitId();
 			info.healthDelta = unitHPgained;
