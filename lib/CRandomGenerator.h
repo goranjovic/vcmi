@@ -12,8 +12,10 @@
 
 typedef std::mt19937 TGenerator;
 typedef std::uniform_int_distribution<int> TIntDist;
+typedef std::uniform_int_distribution<int64_t> TInt64Dist;
 typedef std::uniform_real_distribution<double> TRealDist;
 typedef std::function<int()> TRandI;
+typedef std::function<int64_t()> TRandI64;
 typedef std::function<double()> TRand;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
@@ -36,14 +38,16 @@ public:
 	/// e.g.: auto a = gen.getIntRange(0,10); a(); a(); a();
 	/// requires: lower <= upper
 	TRandI getIntRange(int lower, int upper);
-	
+
+	TRandI64 getInt64Range(int64_t lower, int64_t upper);
+
 	/// Generates an integer between 0 and upper.
 	/// requires: 0 <= upper
 	int nextInt(int upper);
 
 	/// requires: lower <= upper
 	int nextInt(int lower, int upper);
-	
+
 	/// Generates an integer between 0 and the maximum value it can hold.
 	int nextInt();
 
@@ -51,7 +55,7 @@ public:
 	/// e.g.: auto a = gen.getDoubleRange(4.5,10.2); a(); a(); a();
 	/// requires: lower <= upper
 	TRand getDoubleRange(double lower, double upper);
-	
+
 	/// Generates a double between 0 and upper.
 	/// requires: 0 <= upper
 	double nextDouble(double upper);

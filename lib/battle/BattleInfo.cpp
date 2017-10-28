@@ -38,31 +38,6 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 	return std::make_pair(path, reachability.distances[dest]);
 }
 
-ui32 BattleInfo::calculateDmg(const CStack * attacker, const CStack * defender,
-	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand)
-{
-	BattleAttackInfo bai(attacker, defender, shooting);
-	bai.chargedFields = charge;
-	bai.luckyHit = lucky;
-	bai.unluckyHit = unlucky;
-	bai.deathBlow = deathBlow;
-	bai.ballistaDoubleDamage = ballistaDoubleDmg;
-
-	TDmgRange range = calculateDmgRange(bai);
-
-	if(range.first != range.second)
-	{
-		ui32 sum = 0;
-		ui32 howManyToAv = std::min<ui32>(10, attacker->getCount());
-		for(int g=0; g<howManyToAv; ++g)
-			sum += (ui32)rand.nextInt(range.first, range.second);
-
-		return sum / howManyToAv;
-	}
-	else
-		return range.first;
-}
-
 void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 {
 	for(auto & elem : stacks)//setting casualties
