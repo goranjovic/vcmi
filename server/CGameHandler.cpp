@@ -1049,7 +1049,6 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	if(ranged)
 		attackerState->shots.use();
 
-
 	{
 		CStackStateInfo info;
 		attackerState->toInfo(info);
@@ -1061,7 +1060,8 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	if(!fireShield.empty())
 	{
-		const CSpell * fireShieldSpell = SpellID(SpellID::FIRE_SHIELD).toSpell();//todo: this better be "virtual" spell instead
+		//todo: this should be "virtual" spell instead, we only need fire spell school bonus here
+		const CSpell * fireShieldSpell = SpellID(SpellID::FIRE_SHIELD).toSpell();
 		StacksInjured pack;
 		int64_t totalDamage = 0;
 
@@ -1074,7 +1074,11 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 			if(actorOwner)
 			{
-				rawDamage = actorOwner->getSpellBonus(fireShieldSpell, rawDamage, attacker);
+				rawDamage = fireShieldSpell->adjustRawDamage(actorOwner, attacker, rawDamage);
+			}
+			else
+			{
+				rawDamage = fireShieldSpell->adjustRawDamage(actor, attacker, rawDamage);
 			}
 
 			totalDamage+=rawDamage;
