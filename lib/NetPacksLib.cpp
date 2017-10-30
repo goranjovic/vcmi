@@ -1404,9 +1404,6 @@ DLL_LINKAGE void BattleStackAttacked::applyGs(CGameState *gs)
 			at->stackState.cloneID = -1;
 		}
 	}
-	//life drain handling
-	for(auto & elem : healedStacks)
-		elem.applyGs(gs);
 
 	if(willRebirth())
 	{
@@ -1439,11 +1436,7 @@ DLL_LINKAGE void BattleAttack::applyGs(CGameState * gs)
 	CStack * attacker = gs->curB->getStack(stackAttacking);
 	assert(attacker);
 
-	if(counter())
-		attacker->stackState.counterAttacks.use();
-
-	if(shot())
-		attacker->stackState.shots.use();
+	attackerChanges.applyGs(gs);
 
 	for(BattleStackAttacked & stackAttacked : bsa)
 		stackAttacked.applyGs(gs);

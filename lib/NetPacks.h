@@ -1448,7 +1448,6 @@ struct BattleStackAttacked
 	ui32 flags; //uses EFlags (above)
 	ui32 effect; //set only if flag EFFECT is set
 	SpellID spellID; //only if flag SPELL_EFFECT is set
-	std::vector<BattleStacksChanged> healedStacks; //used when life drain
 
 	bool killed() const//if target stack was killed
 	{
@@ -1484,7 +1483,6 @@ struct BattleStackAttacked
 		h & killedAmount;
 		h & damageAmount;
 		h & effect;
-		h & healedStacks;
 		h & spellID;
 	}
 	bool operator<(const BattleStackAttacked &b) const
@@ -1501,6 +1499,8 @@ struct BattleAttack : public CPackForClient
 	void applyFirstCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
+
+	BattleStacksChanged attackerChanges;
 
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
@@ -1548,6 +1548,7 @@ struct BattleAttack : public CPackForClient
 		h & spellID;
 		h & battleLog;
 		h & customEffects;
+		h & attackerChanges;
 	}
 };
 

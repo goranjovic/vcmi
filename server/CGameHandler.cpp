@@ -952,6 +952,8 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	BattleAttack bat;
 	bat.stackAttacking = attacker->unitId();
 
+	std::shared_ptr<battle::CUnitState> attackerState = attacker->asquire();
+
 	if(ranged)
 		bat.flags |= BattleAttack::SHOT;
 	if(counter)
@@ -992,7 +994,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	}
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(bat, attacker, defender, distance, false);
+		applyBattleEffects(bat, attackerState, attacker, defender, distance, false);
 
 	if(!ranged) //multiple-hex attack - only in meele
 	{
@@ -1002,7 +1004,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, attacker, stack, distance, true);
+				applyBattleEffects(bat, attackerState, attacker, stack, distance, true);
 			}
 		}
 	}
@@ -1024,7 +1026,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, attacker, stack, distance, true);
+				applyBattleEffects(bat, attackerState, attacker, stack, distance, true);
 			}
 		}
 
@@ -1040,11 +1042,25 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		}
 	}
 
+	if(counter)
+		attackerState->counterAttacks.use();
+
+	if(ranged)
+		attackerState->shots.use();
+
+
+	{
+		CStackStateInfo info;
+		attackerState->toInfo(info);
+		info.stackId = attackerState->unitId();
+		bat.attackerChanges.changedStacks.push_back(info);
+	}
+
 	sendAndApply(&bat);
 
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
-void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary)
+void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, const CStack * att, const CStack * def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1052,7 +1068,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	bsa.attackerID = att->ID;
 	bsa.stackAttacked = def->ID;
 	{
-		BattleAttackInfo bai(att, def, bat.shot());
+		BattleAttackInfo bai(attackerState.get(), def, bat.shot());
 		bai.chargedFields = distance;
 		bai.luckyHit = bat.lucky();
 		bai.unluckyHit = bat.unlucky();
@@ -1065,7 +1081,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		{
 			int64_t sum = 0;
 
-			ui32 howManyToAv = std::min<ui32>(10, att->getCount());
+			ui32 howManyToAv = std::min<ui32>(10, attackerState->getCount());
 
 			auto rangeGen = getRandomGenerator().getInt64Range(range.first, range.second);
 
@@ -1082,31 +1098,23 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 
 	auto addLifeDrain = [&](int64_t & toHeal, EHealLevel level, EHealPower power)
 	{
-		BattleStacksChanged pack;
-
-		battle::CUnitState state = att->stackState;
-		state.heal(toHeal, level, power);
-
-		CStackStateInfo info;
-		state.toInfo(info);
-		info.stackId = att->ID;
-		info.healthDelta = toHeal;
-		pack.changedStacks.push_back(info);
-
-		CustomEffectInfo customEffect;
-		customEffect.sound = soundBase::DRAINLIF;
-		customEffect.effect = 52;
-		customEffect.stack = att->ID;
-
-		MetaString text;
-		att->addText(text, MetaString::GENERAL_TXT, 361);
-		att->addNameReplacement(text, false);
-		text.addReplacement(toHeal);
-		def->addNameReplacement(text, true);
-		pack.battleLog.push_back(text);
+		attackerState->heal(toHeal, level, power);
 
 		if(toHeal > 0)
-			bsa.healedStacks.push_back(pack);
+		{
+			CustomEffectInfo customEffect;
+			customEffect.sound = soundBase::DRAINLIF;
+			customEffect.effect = 52;
+			customEffect.stack = att->ID;
+			bat.customEffects.push_back(customEffect);
+
+			MetaString text;
+			att->addText(text, MetaString::GENERAL_TXT, 361);
+			att->addNameReplacement(text, false);
+			text.addReplacement(toHeal);
+			def->addNameReplacement(text, true);
+			bat.battleLog.push_back(text);
+		}
 	};
 
 	//life drain handling
