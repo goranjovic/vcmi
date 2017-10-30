@@ -47,6 +47,10 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & AttackInf
 	AttackPossibility ap = {AttackInfo.defender, hex, AttackInfo, 0, 0, 0};
 
 	BattleAttackInfo curBai = AttackInfo; //we'll modify here the stack state
+
+	curBai.attacker.reset(new battle::CUnitState(*AttackInfo.attacker.get()));
+	curBai.defender.reset(new battle::CUnitState(*AttackInfo.defender.get()));
+
 	for(int i = 0; i < totalAttacks; i++)
 	{
 		TDmgRange retaliation(0,0);
