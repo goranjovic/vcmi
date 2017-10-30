@@ -75,6 +75,7 @@ struct CasualtiesAfterBattle
 class CGameHandler : public IGameCallback, CBattleInfoCallback
 {
 public:
+	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
 	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
@@ -105,7 +106,7 @@ public:
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
-	void applyBattleEffects(BattleAttack &bat, std::shared_ptr<battle::CUnitState> attackerState, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
+	void applyBattleEffects(BattleAttack &bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
 	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);

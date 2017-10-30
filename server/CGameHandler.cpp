@@ -949,6 +949,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	if(first && !counter)
 		handleAttackBeforeCasting(ranged, attacker, defender);
 
+	FireShieldInfo fireShield;
 	BattleAttack bat;
 	bat.stackAttacking = attacker->unitId();
 
@@ -994,7 +995,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	}
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(bat, attackerState, attacker, defender, distance, false);
+		applyBattleEffects(bat, attackerState, fireShield, attacker, defender, distance, false);
 
 	if(!ranged) //multiple-hex attack - only in meele
 	{
@@ -1004,7 +1005,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, attackerState, attacker, stack, distance, true);
+				applyBattleEffects(bat, attackerState, fireShield, attacker, stack, distance, true);
 			}
 		}
 	}
@@ -1026,7 +1027,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, attackerState, attacker, stack, distance, true);
+				applyBattleEffects(bat, attackerState, fireShield, attacker, stack, distance, true);
 			}
 		}
 
@@ -1058,9 +1059,45 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	sendAndApply(&bat);
 
+	if(!fireShield.empty())
+	{
+		const CSpell * fireShieldSpell = SpellID(SpellID::FIRE_SHIELD).toSpell();//todo: this better be "virtual" spell instead
+		StacksInjured pack;
+		int64_t totalDamage = 0;
+
+		for(const auto & item : fireShield)
+		{
+			const CStack * actor = item.first;
+			int64_t rawDamage = item.second;
+
+			const CGHeroInstance * actorOwner = gs->curB->getHero(actor->owner);
+
+			if(actorOwner)
+			{
+				rawDamage = actorOwner->getSpellBonus(fireShieldSpell, rawDamage, attacker);
+			}
+
+			totalDamage+=rawDamage;
+			//FIXME: add custom effect on actor
+		}
+
+		BattleStackAttacked bsa;
+
+		bsa.stackAttacked = attacker->ID; //invert
+		bsa.attackerID = uint32_t(-1);
+		bsa.flags |= BattleStackAttacked::EFFECT;
+		bsa.effect = 11;
+		bsa.damageAmount = totalDamage;
+		attacker->prepareAttacked(bsa, getRandomGenerator());
+
+		pack.stacks.push_back(bsa);
+
+		sendAndApply(&pack);
+	}
+
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
-void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, const CStack * att, const CStack * def, int distance, bool secondary)
+void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * att, const CStack * def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1147,18 +1184,9 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle
 	if(!bat.shot() && !def->isClone() &&
 		def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType(Bonus::FIRE_IMMUNITY))
 	{
-		// TODO: Fire shield damage should be calculated separately after BattleAttack applied.
-		// Currently it looks like attacking stack damage itself with defenders fire shield.
-		// So no separate message on spell damage in log and experience calculation is likely wrong too.
-		BattleStackAttacked bsa2;
-		bsa2.stackAttacked = att->ID; //invert
-		bsa2.attackerID = def->ID;
-		bsa2.flags |= BattleStackAttacked::EFFECT; //FIXME: play animation upon efreet and not attacker
-		bsa2.effect = 11;
-
-		bsa2.damageAmount = (std::min<int64_t>(def->stackState.health.available(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
-		att->prepareAttacked(bsa2, getRandomGenerator());
-		bat.bsa.push_back(bsa2);
+		//TODO: use damage with bonus but without penalties
+		auto fireShieldDamage = (std::min<int64_t>(def->stackState.health.available(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
+		fireShield.push_back(std::make_pair(def, fireShieldDamage));
 	}
 }
 void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &c)
