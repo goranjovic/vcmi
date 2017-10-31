@@ -15,8 +15,12 @@
 class BattleHex;
 class CBattleInfoCallback;
 class JsonSerializeFormat;
-class CRandomGenerator;
 class IBattleState;
+
+namespace vstd
+{
+	class RNG;
+}
 
 namespace spells
 {
@@ -25,7 +29,7 @@ using EffectTarget = Target;
 
 namespace effects
 {
-using RNG = ::CRandomGenerator;
+using RNG = ::vstd::RNG;
 class Effects;
 class Effect;
 class Registry;

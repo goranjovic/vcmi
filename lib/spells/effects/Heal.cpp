@@ -126,6 +126,7 @@ bool Heal::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 				return false;
 		}
 	}
+	return true;
 }
 
 void Heal::serializeJsonEffect(JsonSerializeFormat & handler)

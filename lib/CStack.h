@@ -21,6 +21,11 @@ class CStack;
 class CStackStateInfo;
 class JsonSerializeFormat;
 
+namespace vstd
+{
+	class RNG;
+}
+
 namespace battle
 {
 	class Unit;
@@ -352,8 +357,8 @@ public:
 
 	BattleHex::EDir destShiftDir() const;
 
-	void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand) const; //requires bsa.damageAmout filled
-	static void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const battle::CUnitState & customState); //requires bsa.damageAmout filled
+	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmout filled
+	static void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const battle::CUnitState & customState); //requires bsa.damageAmout filled
 
 	///spells::Caster
 

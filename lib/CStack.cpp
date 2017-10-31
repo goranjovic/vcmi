@@ -9,10 +9,12 @@
  */
 #include "StdInc.h"
 #include "CStack.h"
+
+#include <vstd/RNG.h>
+
 #include "CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
 #include "spells/CSpellHandler.h"
-#include "CRandomGenerator.h"
 #include "NetPacks.h"
 
 #include "serializer/JsonDeserializer.h"
@@ -1069,12 +1071,12 @@ std::string CStack::nodeName() const
 	return oss.str();
 }
 
-void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand) const
+void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const
 {
 	prepareAttacked(bsa, rand, stackState);
 }
 
-void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const battle::CUnitState & customState)
+void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const battle::CUnitState & customState)
 {
 	battle::CUnitState afterAttack = customState;
 	afterAttack.damage(bsa.damageAmount);
@@ -1089,32 +1091,39 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand,
 	{
 		bsa.flags |= BattleStackAttacked::KILLED;
 
-		int resurrectFactor = afterAttack.valOfBonuses(Bonus::REBIRTH);
-		if(resurrectFactor > 0 && afterAttack.canCast()) //there must be casts left
-		{
-			auto baseAmount = afterAttack.unitBaseAmount();
-			int resurrectedStackCount = baseAmount * resurrectFactor / 100;
+		auto resurrectValue = afterAttack.valOfBonuses(Bonus::REBIRTH);
 
-			// last stack has proportional chance to rebirth
-			//FIXME: diff is always 0
-			auto diff = baseAmount * resurrectFactor / 100.0 - resurrectedStackCount;
-			if(diff > rand.nextDouble(0, 0.99))
+		if(resurrectValue > 0 && afterAttack.canCast()) //there must be casts left
+		{
+			double resurrectFactor = resurrectValue / 100;
+
+			auto baseAmount = afterAttack.unitBaseAmount();
+
+			double resurrectedRaw = baseAmount * resurrectFactor;
+
+			int32_t resurrectedCount = static_cast<int32_t>(floor(resurrectedRaw));
+
+			int32_t resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount/resurrectFactor));
+
+			auto rangeGen = rand.getInt64Range(0, 99);
+
+			for(int32_t i = 0; i < resurrectedAdd; i++)
 			{
-				resurrectedStackCount += 1;
+				if(resurrectValue > rangeGen())
+					resurrectedCount += 1;
 			}
 
 			if(afterAttack.hasBonusOfType(Bonus::REBIRTH, 1))
 			{
 				// resurrect at least one Sacred Phoenix
-				vstd::amax(resurrectedStackCount, 1);
+				vstd::amax(resurrectedCount, 1);
 			}
 
-			if(resurrectedStackCount > 0)
+			if(resurrectedCount > 0)
 			{
 				afterAttack.casts.use();
 				bsa.flags |= BattleStackAttacked::REBIRTH;
-				int64_t toHeal = afterAttack.unitMaxHealth() * resurrectedStackCount;
-				//TODO: use StackHealedOrResurrected
+				int64_t toHeal = afterAttack.unitMaxHealth() * resurrectedCount;
 				//TODO: add one-battle rebirth?
 				afterAttack.heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
 				afterAttack.counterAttacks.use(afterAttack.counterAttacks.available());
