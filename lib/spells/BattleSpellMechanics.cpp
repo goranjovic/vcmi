@@ -45,8 +45,6 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 
 		CStackStateInfo info;
 		state->toInfo(info);
-
-		info.stackId = attackedCre->ID;
 		info.healthDelta = stackHPgained;
 		if(stackHPgained > 0)
 			shr.changedStacks.push_back(info);

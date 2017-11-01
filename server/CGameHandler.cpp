@@ -1052,7 +1052,6 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	{
 		CStackStateInfo info;
 		attackerState->toInfo(info);
-		info.stackId = attackerState->unitId();
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
@@ -4376,7 +4375,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 					CStackStateInfo info;
 					state->toInfo(info);
-					info.stackId = destStack->ID;
 					info.healthDelta = toHeal;
 					pack.changedStacks.push_back(info);
 					sendAndApply(&pack);

@@ -58,8 +58,6 @@ void Heal::apply(const PacketSender * server, RNG & rng, const Mechanics * m, co
 
 			CStackStateInfo info;
 			state->toInfo(info);
-
-			info.stackId = unit->unitId();
 			info.healthDelta = unitHPgained;
 			if(unitHPgained > 0)
 				pack.changedStacks.push_back(info);
@@ -86,8 +84,6 @@ void Heal::apply(IBattleState * battleState, const Mechanics * m, const EffectTa
 
 			CStackStateInfo info;
 			state->toInfo(info);
-
-			info.stackId = unit->unitId();
 			info.healthDelta = unitHPgained;
 			if(unitHPgained > 0)
 				battleState->updateUnit(info);
